@@ -27,6 +27,9 @@ public class AreaCheckServlet extends HttpServlet {
             return;
         }
 
+        HttpSession session = request.getSession();
+        session.setAttribute("lastR", request.getParameter("r"));
+
         boolean hit = false;
         if (x >= 0 && y >= 0) {
             hit = false;
@@ -42,7 +45,7 @@ public class AreaCheckServlet extends HttpServlet {
         String executionTime = String.format("%.3f ms", (System.nanoTime() - startTime) / 1_000_000.0);
         Point point = new Point(x, y, r, hit, currentTime, executionTime);
 
-        HttpSession session = request.getSession();
+        HttpSession sesion = request.getSession();
         HistoryBean historyBean = (HistoryBean) session.getAttribute("historyBean");
         if (historyBean == null) {
             historyBean = new HistoryBean();

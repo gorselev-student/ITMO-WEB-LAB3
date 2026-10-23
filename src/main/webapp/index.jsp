@@ -20,27 +20,28 @@
             <canvas id="canvas" width="300" height="300"></canvas>
         </section>
         <section class="glass-panel">
-            <h2>Enter params</h2>
+            <h2>Ввод данных</h2>
             <form id="point-form" action="${pageContext.request.contextPath}/controller" method="POST">
                 <div class="input-group">
-                    <label for="x-input">X(-3 ... 5):</label>
-                    <input type="text" id="x-input" name="x" placeholder="Enter X(-3 ... 5)">
-                </div>
-                <div class="input-group">
-                    <label>Y:</label>
-                    <div class="buttons-container" id="y-radios">
-                        <c:forEach var="yVal" begin="-4" end="4" step="1">
-                            <label><input type="radio" name="y" value="${yVal}"> ${yVal}</label>
+                    <label>X:</label>
+                    <div class="buttons-container" id="x-buttons">
+                        <c:forEach var="xVal" items="-5,-4,-3,-2,-1,0,1,2,3">
+                            <button type="button" class="r-btn x-btn" value="${xVal}">${xVal}</button>
                         </c:forEach>
                     </div>
+                    <input type="hidden" id="x-hidden" name="x" value="">
                 </div>
                 <div class="input-group">
-                    <label>R:</label>
-                    <div class="buttons-container" id="r-radios">
-                        <c:forEach var="rVal" items="${['1', '1.5', '2', '2.5', '3']}">
-                            <label><input type="radio" name="r" value="${rVal}"> ${rVal}</label>
+                    <label for="y-input">Y (-3 ... 3):</label>
+                    <input type="text" id="y-input" name="y" placeholder="Enter Y (-3 ... 3)">
+                </div>
+                <div class="input-group">
+                    <label for="r-select">R:</label>
+                    <select id="r-select" name="r" style="width: 100%; padding: 10px; border-radius: 4px; background: rgba(255,255,255,0.1); color: black;">
+                        <c:forEach var="rVal" begin="1" end="5">
+                            <option value="${rVal}" ${rVal eq sessionScope.lastR or (empty sessionScope.lastR and rVal == 5) ? 'selected' : ''}>${rVal}</option>
                         </c:forEach>
-                    </div>
+                    </select>
                 </div>
                 <div class="input-group">
                     <button type="submit" id="submit-btn">Check</button>
@@ -56,7 +57,7 @@
                 <th>X</th>
                 <th>Y</th>
                 <th>R</th>
-                <th>Результат</th>
+                <th>Result</th>
                 <th>Current server time</th>
                 <th>Script working time</th>
             </tr>

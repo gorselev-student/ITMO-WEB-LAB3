@@ -3,7 +3,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = canvas.getContext("2d");
     const form = document.getElementById("point-form");
     const toast = document.getElementById("toast");
+    const xButtons = document.querySelectorAll(".x-btn");
+    const xHidden = document.getElementById("x-hidden");
+    const yInput = document.getElementById("y-input");
+    const rSelect = document.getElementById("r-select");
     let toastTimeout;
+
+    xButtons.forEach(button => {
+        button.addEventListener("click", function() {
+            xButtons.forEach(btn => btn.classList.remove("active"));
+            this.classList.add("active");
+            xHidden.value = this.value;
+        });
+    });
 
     function showToast(message) {
         toast.innerHTML = message;
@@ -15,8 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function getSelectedR() {
-        const rChecked = document.querySelector('input[name="r"]:checked');
-        return rChecked ? parseFloat(rChecked.value) : null;
+        return rSelect ? parseFloat(rSelect.value) : null;
     }
 
     const history = [];
@@ -37,10 +48,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const height = canvas.height;
         const centerX = width / 2;
         const centerY = height / 2;
-        const scale = 40;
+        const scale = 25;
         const rPx = r * scale;
+
         ctx.clearRect(0, 0, width, height);
         ctx.fillStyle = "rgba(52, 152, 219, 0.5)";
+
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.arc(centerX, centerY, rPx, Math.PI, 1.5 * Math.PI);
@@ -51,11 +64,13 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.lineTo(centerX + rPx, centerY);
         ctx.lineTo(centerX, centerY + rPx / 2);
         ctx.fill();
+
         ctx.beginPath();
         ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
         ctx.moveTo(0, centerY); ctx.lineTo(width, centerY);
         ctx.moveTo(centerX, 0); ctx.lineTo(centerX, height);
         ctx.stroke();
+
         history.forEach(point => {
             drawPoint(point.x, point.y, point.r === r, point.hit, scale);
         });
@@ -66,6 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const centerY = canvas.height / 2;
         const canvasX = centerX + x * scale;
         const canvasY = centerY - y * scale;
+
         ctx.beginPath();
         ctx.arc(canvasX, canvasY, 4, 0, 2 * Math.PI);
 
@@ -79,34 +95,32 @@ document.addEventListener("DOMContentLoaded", () => {
         ctx.fill();
     }
 
-    const initialR = getSelectedR() || 3;
+    const initialR = getSelectedR() || 5;
     drawCanvas(initialR);
-    document.querySelectorAll('input[name="r"]').forEach(radio => {
-        radio.addEventListener("change", (e) => {
-            drawCanvas(parseFloat(e.target.value));
-        });
+
+    rSelect.addEventListener("change", (e) => {
+        drawCanvas(parseFloat(e.target.value));
     });
 
     form.addEventListener("submit", (e) => {
         let errors = [];
-        const xInput = document.getElementById("x-input");
-        let xValStr = xInput.value.replace(",", ".");
-        let xVal = parseFloat(xValStr);
 
-        if (xValStr.trim() === "" || isNaN(xVal)) {
-            errors.push("Введите корректный X");
-        } else if (xVal <= -3 || xVal >= 5) {
-            errors.push("X должен быть в интервале (-3 ... 5)");
+        if (xHidden.value.trim() === "") {
+            errors.push("Enter X");
         }
 
-        const yChecked = document.querySelector('input[name="y"]:checked');
-        if (!yChecked) {
-            errors.push("Выберите координату Y");
+        let yValStr = yInput.value.replace(",", ".");
+        let yVal = parseFloat(yValStr);
+
+        if (yValStr.trim() === "" || isNaN(yVal)) {
+            errors.push("Enter correct Y");
+        } else if (yVal <= -3 || yVal >= 3) {
+            errors.push("Y should be between (-3 ... 3)");
         }
 
-        const rChecked = getSelectedR();
-        if (!rChecked) {
-            errors.push("Выберите радиус R");
+        const rVal = getSelectedR();
+        if (!rVal) {
+            errors.push("Choose R");
         }
 
         if (errors.length > 0) {
@@ -114,13 +128,14 @@ document.addEventListener("DOMContentLoaded", () => {
             showToast(errors.join("<br>"));
             return;
         }
-        xInput.value = xVal;
+
+        yInput.value = yVal;
     });
 
     canvas.addEventListener("click", (e) => {
         const rVal = getSelectedR();
         if (!rVal) {
-            showToast("Enter R at first");
+            showToast("Choose R");
             return;
         }
 
@@ -129,7 +144,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const clickY = e.clientY - rect.top;
         const centerX = canvas.width / 2;
         const centerY = canvas.height / 2;
-        const scale = 40;
+        const scale = 25;
+
         const x = (clickX - centerX) / scale;
         const y = (centerY - clickY) / scale;
 
@@ -138,12 +154,13 @@ document.addEventListener("DOMContentLoaded", () => {
         hiddenForm.action = form.action;
 
         const xInp = document.createElement('input'); xInp.name = 'x'; xInp.value = x.toFixed(3);
-        const yInp = document.createElement('input'); yInp.name = 'y'; yInp.value = Math.round(y);
+        const yInp = document.createElement('input'); yInp.name = 'y'; yInp.value = y.toFixed(3);
         const rInp = document.createElement('input'); rInp.name = 'r'; rInp.value = rVal;
 
         hiddenForm.appendChild(xInp);
         hiddenForm.appendChild(yInp);
         hiddenForm.appendChild(rInp);
+
         document.body.appendChild(hiddenForm);
         hiddenForm.submit();
     });
