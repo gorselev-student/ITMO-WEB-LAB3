@@ -45,7 +45,6 @@ public class AreaCheckServlet extends HttpServlet {
         String executionTime = String.format("%.3f ms", (System.nanoTime() - startTime) / 1_000_000.0);
         Point point = new Point(x, y, r, hit, currentTime, executionTime);
 
-        HttpSession sesion = request.getSession();
         HistoryBean historyBean = (HistoryBean) session.getAttribute("historyBean");
         if (historyBean == null) {
             historyBean = new HistoryBean();
